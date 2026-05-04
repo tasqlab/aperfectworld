@@ -25,4 +25,6 @@ services:
         value: production
       - key: VITE_API_URL
         value: https://api-server.onrender.com
+      - key: BASE_PATH
+        value: /
     plan: free
