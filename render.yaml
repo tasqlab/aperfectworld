@@ -19,7 +19,7 @@ services:
     runtime: node
     region: singapore
     buildCommand: cd artifacts/rpg-game && pnpm install && pnpm run build
-    startCommand: cd artifacts/rpg-game && npx serve dist -l 4173
+    startCommand: cd artifacts/rpg-game && npx serve dist/public -l 4173
     envVars:
       - key: NODE_ENV
         value: production
