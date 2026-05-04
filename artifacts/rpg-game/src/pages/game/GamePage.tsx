@@ -12,6 +12,8 @@ import Chat from '../../components/hud/Chat';
 import InventoryPanel from '../../components/hud/Panels/InventoryPanel';
 import StatsPanel from '../../components/hud/Panels/StatsPanel';
 import LeaderboardPanel from '../../components/hud/Panels/LeaderboardPanel';
+import ShopPanel from '../../components/hud/Panels/ShopPanel';
+import QuestPanel from '../../components/hud/Panels/QuestPanel';
 import DeathOverlay from '../../components/hud/DeathOverlay';
 import Minimap from '../../components/hud/Minimap';
 
@@ -25,9 +27,13 @@ export default function GamePage() {
   const toggleInventory = useGameStore(s => s.toggleInventory);
   const toggleStats = useGameStore(s => s.toggleStats);
   const toggleLeaderboard = useGameStore(s => s.toggleLeaderboard);
+  const toggleShop = useGameStore(s => s.toggleShop);
+  const toggleQuests = useGameStore(s => s.toggleQuests);
   const showInventory = useGameStore(s => s.showInventory);
   const showStats = useGameStore(s => s.showStats);
   const showLeaderboard = useGameStore(s => s.showLeaderboard);
+  const showShop = useGameStore(s => s.showShop);
+  const showQuests = useGameStore(s => s.showQuests);
 
   const queryClient = useQueryClient();
   const { connected, socket } = useSocket();
@@ -81,12 +87,18 @@ export default function GamePage() {
         case 'l':
           toggleLeaderboard();
           break;
+        case 'b':
+          toggleShop();
+          break;
+        case 'q':
+          toggleQuests();
+          break;
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [toggleInventory, toggleStats, toggleLeaderboard]);
+  }, [toggleInventory, toggleStats, toggleLeaderboard, toggleShop, toggleQuests]);
 
   if (!token) return null;
   if (isLoading || !authData || !character) {
@@ -140,6 +152,16 @@ export default function GamePage() {
              {showLeaderboard && (
                <div className="absolute top-20 right-4 pointer-events-auto">
                  <LeaderboardPanel />
+               </div>
+             )}
+             {showShop && (
+               <div className="absolute bottom-20 left-1/2 -translate-x-1/2 pointer-events-auto">
+                 <ShopPanel />
+               </div>
+             )}
+             {showQuests && (
+               <div className="absolute top-20 left-4 pointer-events-auto">
+                 <QuestPanel />
                </div>
              )}
           </div>

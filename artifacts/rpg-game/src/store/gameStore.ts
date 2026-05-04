@@ -11,6 +11,8 @@ interface GameState {
   showInventory: boolean;
   showStats: boolean;
   showLeaderboard: boolean;
+  showShop: boolean;
+  showQuests: boolean;
 
   setToken: (token: string | null) => void;
   setCharacter: (character: Character | null) => void;
@@ -22,6 +24,8 @@ interface GameState {
   toggleInventory: () => void;
   toggleStats: () => void;
   toggleLeaderboard: () => void;
+  toggleShop: () => void;
+  toggleQuests: () => void;
 }
 
 export const useGameStore = create<GameState>((set) => ({
@@ -33,6 +37,8 @@ export const useGameStore = create<GameState>((set) => ({
   showInventory: false,
   showStats: false,
   showLeaderboard: false,
+  showShop: false,
+  showQuests: false,
   
   setToken: (token) => {
     if (token) {
@@ -60,4 +66,6 @@ export const useGameStore = create<GameState>((set) => ({
   toggleInventory: () => set((state) => ({ showInventory: !state.showInventory })),
   toggleStats: () => set((state) => ({ showStats: !state.showStats })),
   toggleLeaderboard: () => set((state) => ({ showLeaderboard: !state.showLeaderboard })),
+  toggleShop: () => set((state) => ({ showShop: !state.showShop })),
+  toggleQuests: () => set((state) => ({ showQuests: !state.showQuests })),
 }));
