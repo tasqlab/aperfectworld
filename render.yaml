@@ -1,7 +1,7 @@
 services:
   - name: api-server
     type: web
-    region: oregon
+    region: singapore
     buildCommand: pnpm install && pnpm run build
     startCommand: pnpm run start
     envVars:
@@ -15,7 +15,7 @@ services:
 
   - name: rpg-game
     type: web
-    region: oregon
+    region: singapore
     buildCommand: cd artifacts/rpg-game && pnpm install && pnpm run build
     startCommand: cd artifacts/rpg-game && pnpm run serve
     envVars:
