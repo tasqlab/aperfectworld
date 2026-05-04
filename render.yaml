@@ -15,11 +15,11 @@ services:
     plan: free
 
   - name: rpg-game
-    type: static
-    runtime: static
+    type: web
+    runtime: node
     region: singapore
     buildCommand: cd artifacts/rpg-game && pnpm install && pnpm run build
-    publishDir: artifacts/rpg-game/dist
+    startCommand: cd artifacts/rpg-game && npx serve dist -l 4173
     envVars:
       - key: NODE_ENV
         value: production
