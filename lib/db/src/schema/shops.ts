@@ -1,17 +1,18 @@
-import { pgTable, serial, integer, text, boolean } from "drizzle-orm/pg-core";
+import { pgTable, uuid, integer, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
 export const shopsTable = pgTable("shops", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
-  type: text("type").notNull().default("general"),
-  description: text("description").notNull(),
+  location: text("location").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const shopItemsTable = pgTable("shop_items", {
-  id: serial("id").primaryKey(),
-  shopId: integer("shop_id").notNull(),
+  id: uuid("id").primaryKey().defaultRandom(),
+  shopId: uuid("shop_id").notNull().references(() => shopsTable.id),
   itemKey: text("item_key").notNull(),
   name: text("name").notNull(),
   type: text("type").notNull(),
@@ -20,9 +21,9 @@ export const shopItemsTable = pgTable("shop_items", {
   attackBonus: integer("attack_bonus").notNull().default(0),
   defenseBonus: integer("defense_bonus").notNull().default(0),
   hpBonus: integer("hp_bonus").notNull().default(0),
-  description: text("description").notNull().default(""),
   levelRequired: integer("level_required").notNull().default(1),
-  inStock: boolean("in_stock").notNull().default(true),
+  stock: integer("stock"),
+  description: text("description"),
 });
 
 export const insertShopSchema = createInsertSchema(shopsTable).omit({ id: true });

@@ -1,11 +1,11 @@
-import { pgTable, serial, integer, text, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, integer, text, boolean, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { charactersTable } from "./characters";
 
 export const inventoryTable = pgTable("inventory", {
-  id: serial("id").primaryKey(),
-  characterId: integer("character_id").notNull().references(() => charactersTable.id),
+  id: uuid("id").primaryKey().defaultRandom(),
+  characterId: uuid("character_id").notNull().references(() => charactersTable.id),
   itemKey: text("item_key").notNull(),
   name: text("name").notNull(),
   type: text("type").notNull(),
@@ -14,7 +14,7 @@ export const inventoryTable = pgTable("inventory", {
   attackBonus: integer("attack_bonus").notNull().default(0),
   defenseBonus: integer("defense_bonus").notNull().default(0),
   hpBonus: integer("hp_bonus").notNull().default(0),
-  description: text("description").notNull().default(""),
+  description: text("description"),
   equipped: boolean("equipped").notNull().default(false),
   acquiredAt: timestamp("acquired_at").notNull().defaultNow(),
 });

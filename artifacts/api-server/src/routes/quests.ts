@@ -22,7 +22,7 @@ router.get("/", requireAuth, async (req, res) => {
       type: questsTable.type,
       giverName: questsTable.giverName,
       targetType: questsTable.targetType,
-      targetId: questsTable.targetId,
+      targetKey: questsTable.targetKey,
       targetCount: questsTable.targetCount,
       rewardXp: questsTable.rewardXp,
       rewardGold: questsTable.rewardGold,

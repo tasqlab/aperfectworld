@@ -1,45 +1,43 @@
-import { pgTable, serial, integer, text, real, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, integer, text, real, timestamp, boolean, array } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
 export const townsTable = pgTable("towns", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
-  description: text("description").notNull(),
+  description: text("description"),
   posX: real("pos_x").notNull(),
   posY: real("pos_y").notNull(),
   mapId: text("map_id").notNull().default("world"),
-  shopId: integer("shop_id"),
-  questId: integer("quest_id"),
-  levelRequired: integer("level_required").notNull().default(1),
+  shopId: uuid("shop_id"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const npcsTable = pgTable("npcs", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
-  title: text("title"),
-  description: text("description").notNull(),
   type: text("type").notNull().default("merchant"),
+  description: text("description"),
   posX: real("pos_x").notNull(),
   posY: real("pos_y").notNull(),
   mapId: text("map_id").notNull().default("world"),
-  townId: integer("town_id"),
-  shopId: integer("shop_id"),
-  questId: integer("quest_id"),
-  dialogue: text("dialogue"),
+  questId: uuid("quest_id"),
+  shopId: uuid("shop_id"),
+  greeting: text("greeting"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const dungeonsTable = pgTable("dungeons", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
-  description: text("description").notNull(),
+  description: text("description"),
   type: text("type").notNull().default("dungeon"),
   posX: real("pos_x").notNull(),
   posY: real("pos_y").notNull(),
   mapId: text("map_id").notNull().default("world"),
-  levelRequired: integer("level_required").notNull().default(1),
-  enemyTypes: text("enemy_types").notNull(),
-  spawnRate: integer("spawn_rate").notNull().default(30),
+  minLevel: integer("min_level").notNull().default(1),
+  enemyTypes: array(text("enemy_types")),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const insertTownSchema = createInsertSchema(townsTable).omit({ id: true });

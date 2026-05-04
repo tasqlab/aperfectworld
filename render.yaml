@@ -24,7 +24,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: VITE_API_URL
-        value: https://api-server.onrender.com
+        value: https://api-server-xxx.onrender.com
       - key: BASE_PATH
         value: /
     plan: free

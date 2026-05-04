@@ -1,29 +1,29 @@
-import { pgTable, serial, integer, text, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, integer, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { charactersTable } from "./characters";
 
 export const questsTable = pgTable("quests", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
-  description: text("description").notNull(),
+  description: text("description"),
   type: text("type").notNull().default("story"),
   giverName: text("giver_name").notNull(),
   targetType: text("target_type").notNull(),
-  targetId: text("target_id"),
+  targetKey: text("target_key"),
   targetCount: integer("target_count").notNull().default(1),
   rewardXp: integer("reward_xp").notNull().default(0),
   rewardGold: integer("reward_gold").notNull().default(0),
   rewardItemKey: text("reward_item_key"),
   minLevel: integer("min_level").notNull().default(1),
-  repeatable: boolean("repeatable").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const characterQuestsTable = pgTable("character_quests", {
-  id: serial("id").primaryKey(),
-  characterId: integer("character_id").notNull().references(() => charactersTable.id),
-  questId: integer("quest_id").notNull().references(() => questsTable.id),
-  status: text("status").notNull().default("available"),
+  id: uuid("id").primaryKey().defaultRandom(),
+  characterId: uuid("character_id").notNull().references(() => charactersTable.id),
+  questId: uuid("quest_id").notNull().references(() => questsTable.id),
+  status: text("status").notNull().default("in_progress"),
   progress: integer("progress").notNull().default(0),
   startedAt: timestamp("started_at").notNull().defaultNow(),
   completedAt: timestamp("completed_at"),
