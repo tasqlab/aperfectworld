@@ -1,0 +1,26 @@
+services:
+  - name: api-server
+    type: web
+    region: oregon
+    buildCommand: pnpm install && pnpm run build
+    startCommand: pnpm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+    plan: free
+
+  - name: rpg-game
+    type: web
+    region: oregon
+    buildCommand: cd artifacts/rpg-game && pnpm install && pnpm run build
+    startCommand: cd artifacts/rpg-game && pnpm run serve
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_API_URL
+        value: https://api-server.onrender.com
+    plan: free
