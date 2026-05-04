@@ -1,22 +1,29 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: 2D RPG MMO API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: characters
+    description: Character management
+  - name: inventory
+    description: Inventory management
+  - name: world
+    description: World and leaderboard data
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +31,461 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Username already taken
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user and character
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /characters/{characterId}:
+    get:
+      operationId: getCharacter
+      tags: [characters]
+      summary: Get a character by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: characterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Character"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      operationId: updateCharacter
+      tags: [characters]
+      summary: Update character stats (equip item, change appearance)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: characterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCharacterBody"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Character"
+
+  /characters/{characterId}/inventory:
+    get:
+      operationId: getInventory
+      tags: [inventory]
+      summary: Get character inventory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: characterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InventoryItem"
+
+    post:
+      operationId: addInventoryItem
+      tags: [inventory]
+      summary: Add an item to inventory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: characterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddInventoryItemBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+
+  /characters/{characterId}/inventory/{itemId}:
+    delete:
+      operationId: removeInventoryItem
+      tags: [inventory]
+      summary: Remove an item from inventory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: characterId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: No content
+
+  /world/leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [world]
+      summary: Get top players by level and XP
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaderboardEntry"
+
+  /world/online:
+    get:
+      operationId: getOnlinePlayers
+      tags: [world]
+      summary: Get count and summary of online players
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OnlineSummary"
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
     HealthStatus:
       type: object
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    RegisterBody:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 20
+        password:
+          type: string
+          minLength: 6
+        characterName:
+          type: string
+          minLength: 2
+          maxLength: 24
+        characterClass:
+          type: string
+          enum: [warrior, mage, archer, rogue]
+      required: [username, password, characterName, characterClass]
+
+    LoginBody:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required: [username, password]
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        character:
+          $ref: "#/components/schemas/Character"
+      required: [token, character]
+
+    Character:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        class:
+          type: string
+          enum: [warrior, mage, archer, rogue]
+        level:
+          type: integer
+        xp:
+          type: integer
+        xpToNextLevel:
+          type: integer
+        hp:
+          type: integer
+        maxHp:
+          type: integer
+        mp:
+          type: integer
+        maxMp:
+          type: integer
+        attack:
+          type: integer
+        defense:
+          type: integer
+        speed:
+          type: integer
+        posX:
+          type: number
+        posY:
+          type: number
+        mapId:
+          type: string
+        gold:
+          type: integer
+        kills:
+          type: integer
+        deaths:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, userId, name, class, level, xp, xpToNextLevel, hp, maxHp, mp, maxMp, attack, defense, speed, posX, posY, mapId, gold, kills, deaths, createdAt]
+
+    UpdateCharacterBody:
+      type: object
+      properties:
+        equippedWeaponId:
+          type: integer
+          nullable: true
+        equippedArmorId:
+          type: integer
+          nullable: true
+
+    InventoryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        characterId:
+          type: integer
+        itemKey:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [weapon, armor, potion, material, quest]
+        rarity:
+          type: string
+          enum: [common, uncommon, rare, epic, legendary]
+        quantity:
+          type: integer
+        attackBonus:
+          type: integer
+        defenseBonus:
+          type: integer
+        hpBonus:
+          type: integer
+        description:
+          type: string
+        equipped:
+          type: boolean
+        acquiredAt:
+          type: string
+          format: date-time
+      required: [id, characterId, itemKey, name, type, rarity, quantity, attackBonus, defenseBonus, hpBonus, description, equipped, acquiredAt]
+
+    AddInventoryItemBody:
+      type: object
+      properties:
+        itemKey:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [weapon, armor, potion, material, quest]
+        rarity:
+          type: string
+          enum: [common, uncommon, rare, epic, legendary]
+        quantity:
+          type: integer
+        attackBonus:
+          type: integer
+        defenseBonus:
+          type: integer
+        hpBonus:
+          type: integer
+        description:
+          type: string
+      required: [itemKey, name, type, rarity]
+
+    LeaderboardEntry:
+      type: object
+      properties:
+        rank:
+          type: integer
+        characterId:
+          type: integer
+        name:
+          type: string
+        class:
+          type: string
+        level:
+          type: integer
+        xp:
+          type: integer
+        kills:
+          type: integer
+        gold:
+          type: integer
+      required: [rank, characterId, name, class, level, xp, kills, gold]
+
+    OnlineSummary:
+      type: object
+      properties:
+        count:
+          type: integer
+        players:
+          type: array
+          items:
+            type: object
+            properties:
+              characterId:
+                type: integer
+              name:
+                type: string
+              level:
+                type: integer
+              class:
+                type: string
+              mapId:
+                type: string
+            required: [characterId, name, level, class, mapId]
+      required: [count, players]

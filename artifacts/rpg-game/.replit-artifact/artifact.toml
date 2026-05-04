@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "2D RPG MMO"
+version = "1.0.0"
+id = "artifacts/rpg-game"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20192
+
+[services.development]
+run = "pnpm --filter @workspace/rpg-game run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/rpg-game", "run", "build" ]
+publicDir = "artifacts/rpg-game/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20192"
+BASE_PATH = "/"
