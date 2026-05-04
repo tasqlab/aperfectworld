@@ -1,6 +1,7 @@
 services:
   - name: api-server
     type: web
+    runtime: node
     region: singapore
     buildCommand: pnpm install && pnpm run build
     startCommand: pnpm run start
