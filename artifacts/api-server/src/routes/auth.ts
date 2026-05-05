@@ -58,7 +58,7 @@ router.post("/register", async (req, res) => {
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const [user] = await db.insert(usersTable).values({ username, passwordHash }).returning();
+  const [user] = await db.insert(usersTable).values({ username, email: `${username}@game.local`, passwordHash }).returning();
   if (!user) {
     res.status(500).json({ error: "Failed to create user" });
     return;
