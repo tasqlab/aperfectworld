@@ -1,4 +1,4 @@
-import { pgTable, uuid, integer, text, real, timestamp, pgArray } from "drizzle-orm/pg-core";
+import { pgTable, uuid, integer, text, real, timestamp, PgArray } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -36,7 +36,7 @@ export const dungeonsTable = pgTable("dungeons", {
   posY: real("pos_y").notNull(),
   mapId: text("map_id").notNull().default("world"),
   minLevel: integer("min_level").notNull().default(1),
-  enemyTypes: pgArray(text("enemy_types")),
+  enemyTypes: PgArray(text("enemy_types")),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
