@@ -12,7 +12,7 @@ router.get("/shops", async (req, res) => {
 });
 
 router.get("/shops/:id", async (req, res) => {
-  const shopId = parseInt(req.params["id"] as string);
+  const shopId = req.params["id"] as string;
   const shop = await db.select().from(shopsTable).where(eq(shopsTable.id, shopId)).limit(1);
   
   if (!shop[0]) {
@@ -20,7 +20,7 @@ router.get("/shops/:id", async (req, res) => {
   }
   
   const items = await db.select().from(shopItemsTable).where(
-    and(eq(shopItemsTable.shopId, shopId), eq(shopItemsTable.inStock, true))
+    eq(shopItemsTable.shopId, shopId)
   );
   
   res.json({ ...shop[0], items });
@@ -28,8 +28,6 @@ router.get("/shops/:id", async (req, res) => {
 
 router.get("/npcs", async (req, res) => {
   const mapId = req.query["mapId"] as string | undefined;
-  const townId = req.query["townId"] as string | undefined;
-  
   let query = db.select().from(npcsTable);
   
   if (mapId) {
@@ -37,16 +35,12 @@ router.get("/npcs", async (req, res) => {
   }
   
   const npcs = await query;
-  
-  const filtered = townId 
-    ? npcs.filter(n => n.townId === parseInt(townId))
-    : npcs;
     
-  res.json(filtered);
+  res.json(npcs);
 });
 
 router.get("/npcs/:id", async (req, res) => {
-  const npcId = parseInt(req.params["id"] as string);
+  const npcId = req.params["id"] as string;
   const npc = await db.select().from(npcsTable).where(eq(npcsTable.id, npcId)).limit(1);
   
   if (!npc[0]) {
@@ -62,14 +56,14 @@ router.get("/towns", async (req, res) => {
 });
 
 router.get("/towns/:id", async (req, res) => {
-  const townId = parseInt(req.params["id"] as string);
+  const townId = req.params["id"] as string;
   const town = await db.select().from(townsTable).where(eq(townsTable.id, townId)).limit(1);
   
   if (!town[0]) {
     return res.status(404).json({ error: "Town not found" });
   }
   
-  const npcs = await db.select().from(npcsTable).where(eq(npcsTable.townId, townId));
+  const npcs = await db.select().from(npcsTable).where(eq(npcsTable.mapId, town[0].mapId));
   
   res.json({ ...town[0], npcs });
 });
@@ -80,7 +74,7 @@ router.get("/dungeons", async (req, res) => {
 });
 
 router.get("/dungeons/:id", async (req, res) => {
-  const dungeonId = parseInt(req.params["id"] as string);
+  const dungeonId = req.params["id"] as string;
   const dungeon = await db.select().from(dungeonsTable).where(eq(dungeonsTable.id, dungeonId)).limit(1);
   
   if (!dungeon[0]) {

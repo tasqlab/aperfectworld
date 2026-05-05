@@ -24,7 +24,7 @@ router.post("/buy", requireAuth, async (req, res) => {
     return res.status(404).json({ error: "Item not found" });
   }
   
-  if (!shopItem[0].inStock) {
+  if (shopItem[0].stock !== null && shopItem[0].stock <= 0) {
     return res.status(400).json({ error: "Item out of stock" });
   }
   
